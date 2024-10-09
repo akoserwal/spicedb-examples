@@ -17,7 +17,7 @@ import (
 func main() {
 	spicedbClient, err := NewSpicedbClient("localhost:50051", "foobar")
 
-	client, err := spicedbClient.ImportBulkRelationships(context.Background())
+	clientStream, err := spicedbClient.ImportBulkRelationships(context.Background())
 	if err != nil {
 		fmt.Errorf("failed to intialize import bulk relationship: %w", err)
 	}
@@ -51,7 +51,7 @@ func main() {
 		},
 	}
 
-	if err = client.Send((*v1.ImportBulkRelationshipsRequest)(&v1.BulkImportRelationshipsRequest{
+	if err = clientStream.Send((*v1.ImportBulkRelationshipsRequest)(&v1.BulkImportRelationshipsRequest{
 		Relationships: batch,
 	})); err != nil {
 		if !errors.Is(err, io.EOF) {
@@ -61,7 +61,7 @@ func main() {
 	}
 
 	for {
-		res, err := client.CloseAndRecv()
+		res, err := clientStream.CloseAndRecv()
 		if err != nil {
 			if err == io.EOF {
 				log.Print("EOF")
